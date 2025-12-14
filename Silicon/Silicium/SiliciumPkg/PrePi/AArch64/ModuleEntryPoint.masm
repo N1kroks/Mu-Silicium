@@ -1,0 +1,118 @@
+//
+//  Copyright (c) 2011 - 2020, Arm Limited. All rights reserved.
+//
+//  SPDX-License-Identifier: BSD-2-Clause-Patent
+//
+
+#include <AsmMacroLib.h>
+
+    AREA |.text|, ALIGN=3, CODE, READONLY
+  
+    IMPORT  PlaformAssemblyInit
+    IMPORT  ArmReadMpidr
+    IMPORT  ArmDisableInterrupts
+    IMPORT  ArmDisableCachesAndMmu
+    IMPORT  ArmInvalidateInstructionCache
+    IMPORT  ArmInvalidateTlb
+    IMPORT  ArmDisableDataCache
+    IMPORT  ArmEnableInstructionCache
+    IMPORT  ArmEnableDataCache
+    IMPORT  CEntryPoint
+    EXPORT _ModuleEntryPoint
+
+CTRL_SPAN_BIT    EQU (1 << 23)
+
+_ModuleEntryPoint PROC
+    // Run SoC Specific Code
+    bl   PlaformAssemblyInit
+
+    // Get MpId
+    bl   ArmReadMpidr
+
+    // Save MpId
+    mov  x10, x0
+
+SetSVCMode
+    // Clear x0 and x1
+    mov  x0, #0
+    mov  x1, #0
+
+    // Disable all Interrupts
+    bl   ArmDisableInterrupts
+
+    // Disable MMU and CPU Caches
+    bl   ArmDisableCachesAndMmu
+
+    // Invalidate I-Cache
+    bl   ArmInvalidateInstructionCache
+
+    // Invalidate TLB
+    bl   ArmInvalidateTlb
+
+    // Rewrite SCTLR_EL1
+    mrs  x0, sctlr_el1
+    orr  x0, x0, #CTRL_SPAN_BIT
+    msr  sctlr_el1, x0
+
+UntrapVFP
+    // Rewrite CPACR_EL1
+    mrs  x0, cpacr_el1
+    orr  x0, x0, #0x300000
+    msr  cpacr_el1, x0
+
+    // Fetch Subsequent Instructions
+    isb  sy
+
+SetupCoreStack
+    // Get Stack Base & Size
+    ldr  x0, =FixedPcdGet32 (PcdPrePiStackBase)
+    ldr  x1, =FixedPcdGet32 (PcdPrePiStackSize)
+
+    // Preapre Stack Clear
+    add  x2, x0, x1
+    mov  x3, x0
+
+    // Set Core Stack
+    mov  v4.d[0], xzr
+    mov  v4.d[1], xzr
+    mov  v5.16b, v4.16b
+    mov  v6.16b, v4.16b
+    mov  v7.16b, v4.16b
+
+ClearStack
+    // Clear 64 Bytes
+    st4  { v4.2d, v5.2d, v6.2d, v7.2d }, [x3], #64
+    cmp  x3, x2
+    b.lt ClearStack
+
+    // Init SP
+    add  sp, x2, xzr
+
+EnableCaches
+    // Disable D-Cache
+    bl   ArmDisableDataCache
+
+    // Enable I-Cache & D-Cache
+    bl   ArmEnableInstructionCache
+    bl   ArmEnableDataCache
+
+JumpToC
+    // Restore Values
+    mov  x0, x10
+    mov  x1, x11
+    mov  x2, x12
+
+    // Set Jump Location
+    ldr  x4, =CEntryPoint
+
+    // Clear Frame Pointer
+    mov  x29, xzr
+
+    // Jump to C Code
+    blr  x4
+
+NeverReturn
+    b  NeverReturn
+
+    ENDP
+    END

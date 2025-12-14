@@ -22,7 +22,8 @@
   Utilities.c
 
 [Sources.AARCH64]
-  OsLoaderHelper.S | GCC
+  OsLoaderHelper.S    | GCC
+  OsLoaderHelper.masm | MSFT
 
 [Packages]
   EmbeddedPkg/EmbeddedPkg.dec

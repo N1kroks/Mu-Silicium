@@ -147,7 +147,7 @@ AddRamPartitions (
   LocateMemoryMapAreaByName ("HYP Reserved", &HypReservedRegion);
   LocateMemoryMapAreaByName ("HYP_Reserved", &HypReservedRegion);
 
-  for (INT32 i = 0; i < NumPartitions; i++) {
+  for (UINT32 i = 0; i < NumPartitions; i++) {
     // Check if the RAM Partition is Valid
     if (RamPartitionTable->RamPartitionEntry[i].Type != RAM_PART_SYS_MEMORY || RamPartitionTable->RamPartitionEntry[i].Category != RAM_PART_SDRAM) { continue; }
     if (RamPartitionTable->RamPartitionEntry[i].Base + RamPartitionTable->RamPartitionEntry[i].AvailableLength <= RAM_PARTITION_BASE) { continue; }

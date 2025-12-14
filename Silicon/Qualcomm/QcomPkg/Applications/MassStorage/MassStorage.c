@@ -144,7 +144,7 @@ GetInternalStorageHandles ()
 VOID
 PrintUI (
   IN CHAR16 *Message,
-  IN UINT8   MessageArg)
+  IN INT8   MessageArg)
 {
   EFI_STATUS                    Status;
   EFI_GRAPHICS_OUTPUT_BLT_PIXEL Color;
@@ -371,11 +371,5 @@ InitMassStorage (
   gBS->SetWatchdogTimer (0, 0, 0, (CHAR16 *)NULL);
 
   // Enter Mass Storage Handler
-  Status = MassStorageHandler ();
-  if (EFI_ERROR (Status)) {
-    return Status;
-  }
-
-
-  return EFI_SUCCESS;
+  return MassStorageHandler ();
 }

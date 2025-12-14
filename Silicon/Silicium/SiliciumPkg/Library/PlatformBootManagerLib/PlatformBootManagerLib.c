@@ -70,7 +70,7 @@ UpdateGopDevicePath (
   IN EFI_DEVICE_PATH_PROTOCOL *ConsoleOutDevicePath,
   IN EFI_DEVICE_PATH_PROTOCOL *GopDevicePath)
 {
-  EFI_DEVICE_PATH_PROTOCOL *NewDevicePath;
+  EFI_DEVICE_PATH_PROTOCOL *NewDevicePath = NULL;
   UINTN                     GopDevicePathSize;
   BOOLEAN                   Exists;
 
@@ -409,7 +409,7 @@ PlatformBootManagerWaitCallback (UINT16 TimeoutRemain)
 
   // Set Combo Message
   if (ComboMessage == NULL) {
-    if (FixedPcdGetPtr (PcdSpecialApp) == "NULL") {
+    if (!AsciiStrCmp(FixedPcdGetPtr (PcdSpecialApp), "NULL")) {
       ComboMessage = L"[Volume Up] FFU Mode";
     } else {
       // Allocate Memory
@@ -475,7 +475,7 @@ Form:
       gBS->Stall (3000);
     }
 
-    if (FixedPcdGetPtr (PcdSpecialApp) != "NULL") {
+    if (!AsciiStrCmp(FixedPcdGetPtr (PcdSpecialApp), "NULL")) {
       if (ComboMessage != NULL) {
         FreePool (ComboMessage);
       }

@@ -75,8 +75,8 @@ PlatformUpdateAcpiTables ()
   UINT32 PLST = PlatformInfo.subtype;
 
   if (!EFI_ERROR (LocateMemoryMapAreaByName ("MPSS_EFS", &MPSSEFSRegion))) {
-    RMTB = MPSSEFSRegion.Address;
-    RMTX = MPSSEFSRegion.Length;
+    RMTB = (UINT32)MPSSEFSRegion.Address;
+    RMTX = (UINT32)MPSSEFSRegion.Length;
 
     // Configure MPSS Permissions
     RFSLocateAndProtectSharedArea ();
@@ -90,8 +90,8 @@ PlatformUpdateAcpiTables ()
   }
 
   if (!EFI_ERROR (LocateMemoryMapAreaByName ("TGCM", &TGCMRegion))) {
-    TCMA = TGCMRegion.Address;
-    TCML = TGCMRegion.Length;
+    TCMA = (UINT32)TGCMRegion.Address;
+    TCML = (UINT32)TGCMRegion.Length;
   } else {
     TCMA = 0xDEADBEEF;
     TCML = 0xBEEFDEAD;

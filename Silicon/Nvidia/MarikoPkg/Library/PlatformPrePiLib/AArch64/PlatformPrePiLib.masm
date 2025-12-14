@@ -1,0 +1,13 @@
+#include <AsmMacroLib.h>
+
+    AREA |.text|, ALIGN=3, CODE, READONLY
+
+    EXPORT PlaformAssemblyInit
+
+PlaformAssemblyInit PROC
+    // Set Stack Pointer to EL1 (Actually for NX Only)
+    msr SPSel, #1
+
+    ret
+    ENDP
+    END

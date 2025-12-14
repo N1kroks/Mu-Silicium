@@ -230,7 +230,7 @@ typedef struct {
   EFI_HANDLE                    ControllerHandle;
   EFI_SD_MMC_PASS_THRU_PROTOCOL PassThru;
 
-  UINT32 Index;
+  UINT8 Index;
 
   EFI_PHYSICAL_ADDRESS MsdcMmioReg;
   EFI_PHYSICAL_ADDRESS TopMmioReg;

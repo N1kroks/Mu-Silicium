@@ -279,7 +279,7 @@ ProcessorInfoUpdateSmbiosType4 ()
     UINT8 GhzValue[2];
 
     // Split GHz Freq
-    GhzValue[0] = CpuFreq[0] / 1000;
+    GhzValue[0] = (UINT8)(CpuFreq[0] / 1000);
     GhzValue[1] = (CpuFreq[0] / 10) % 100;
 
     // Append GHz Freq
@@ -287,8 +287,8 @@ ProcessorInfoUpdateSmbiosType4 ()
   }
 
   // Update Max & Current Speed
-  mProcessorInfoType4.MaxSpeed     = CpuFreq[0];
-  mProcessorInfoType4.CurrentSpeed = CpuFreq[1];
+  mProcessorInfoType4.MaxSpeed     = (UINT16)CpuFreq[0];
+  mProcessorInfoType4.CurrentSpeed = (UINT16)CpuFreq[1];
 
   // Update Core Count
   mProcessorInfoType4.CoreCount        = FixedPcdGet32 (PcdCoreCount);
@@ -476,8 +476,8 @@ MemDevInfoUpdateSmbiosType17 (IN UINT64 SystemMemorySize)
         DEBUG ((EFI_D_ERROR, "Failed to Get Current DDR Freq! Status = %r\n", Status));
       } else {
         // Update DDR Freq
-        mMemDevInfoType17.Speed                      = DdrFreq;
-        mMemDevInfoType17.ConfiguredMemoryClockSpeed = DdrFreq;
+        mMemDevInfoType17.Speed                      = (UINT16)DdrFreq;
+        mMemDevInfoType17.ConfiguredMemoryClockSpeed = (UINT16)DdrFreq;
       }
     }
   }
@@ -491,7 +491,7 @@ MemDevInfoUpdateSmbiosType17 (IN UINT64 SystemMemorySize)
   }
 
   // Update Memory Size
-  mMemDevInfoType17.Size = SystemMemorySize / 0x100000;
+  mMemDevInfoType17.Size = (UINT16)(SystemMemorySize / 0x100000);
 
   // Register SmBios Structure
   LogSmbiosData ((EFI_SMBIOS_TABLE_HEADER *)&mMemDevInfoType17, mMemDevInfoType17Strings, NULL);
@@ -502,7 +502,7 @@ MemArrMapInfoUpdateSmbiosType19 (IN UINT64 SystemMemorySize)
 {
   // Update Memory Start & End Address
   mMemArrMapInfoType19.StartingAddress = FixedPcdGet64 (PcdSystemMemoryBase) / 1024;
-  mMemArrMapInfoType19.EndingAddress   = (SystemMemorySize + FixedPcdGet64 (PcdSystemMemoryBase) - 1) / 1024;
+  mMemArrMapInfoType19.EndingAddress   = (UINT32)((SystemMemorySize + FixedPcdGet64 (PcdSystemMemoryBase) - 1) / 1024);
 
   // Register SmBios Structure
   LogSmbiosData ((EFI_SMBIOS_TABLE_HEADER *)&mMemArrMapInfoType19, mMemArrMapInfoType19Strings, NULL);

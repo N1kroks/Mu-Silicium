@@ -30,7 +30,7 @@ LibGetTime (
   UINT64 SecondsPerHour;
   UINT64 SecondsPerMinute;
   UINT64 ElapsedSeconds;
-  UINT32 Freq;
+  UINTN Freq;
 
   // Check for Invalid Parameters
   if (Time == NULL) {
@@ -47,7 +47,7 @@ LibGetTime (
   // Set Capabilities
   if (Capabilities) {
     Capabilities->Accuracy   = 0;
-    Capabilities->Resolution = Freq;
+    Capabilities->Resolution = (UINT32)Freq;
     Capabilities->SetsToZero = FALSE;
   }
 
@@ -60,21 +60,21 @@ LibGetTime (
 
   // Set Dummy Day
   SecondsPerDay = 24 * 60 * 60;
-  Time->Day = (ElapsedSeconds / SecondsPerDay);
+  Time->Day = (UINT8)(ElapsedSeconds / SecondsPerDay);
   ElapsedSeconds %= SecondsPerDay;
 
   // Set Dummy Hour
   SecondsPerHour = 60 * 60;
-  Time->Hour = (ElapsedSeconds / SecondsPerHour);
+  Time->Hour = (UINT8)(ElapsedSeconds / SecondsPerHour);
   ElapsedSeconds %= SecondsPerHour;
 
   // Set Dummy Minute
   SecondsPerMinute = 60;
-  Time->Minute = (ElapsedSeconds / SecondsPerMinute);
+  Time->Minute = (UINT8)(ElapsedSeconds / SecondsPerMinute);
   ElapsedSeconds %= SecondsPerMinute;
 
   // Set Dummy Second
-  Time->Second = ElapsedSeconds;
+  Time->Second = (UINT8)ElapsedSeconds;
 
   // Set more Dummy Values
   Time->Nanosecond = 0;

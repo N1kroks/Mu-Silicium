@@ -353,7 +353,7 @@ MemArrMapInfoUpdateSmbiosType19 (IN UINT64 SystemMemorySize)
 {
   // Update Memory Start & End Address
   mMemArrMapInfoType19.StartingAddress = FixedPcdGet64 (PcdSystemMemoryBase) / 1024;
-  mMemArrMapInfoType19.EndingAddress   = (SystemMemorySize + FixedPcdGet64 (PcdSystemMemoryBase) - 1) / 1024;
+  mMemArrMapInfoType19.EndingAddress   = (UINT32)((SystemMemorySize + FixedPcdGet64 (PcdSystemMemoryBase) - 1) / 1024);
 
   // Register SmBios Structure
   LogSmbiosData ((EFI_SMBIOS_TABLE_HEADER *)&mMemArrMapInfoType19, mMemArrMapInfoType19Strings, NULL);

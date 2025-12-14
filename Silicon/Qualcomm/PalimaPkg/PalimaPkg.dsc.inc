@@ -24,7 +24,7 @@
   HAS_PSCI_MEMPROTECT_FAILING_ERRATA         = 0
 
 [BuildOptions]
-  *_*_AARCH64_CC_FLAGS = -march=armv9-a+crypto+rcpc
+  *_CLANGPDB_AARCH64_CC_FLAGS = -march=armv9-a+crypto+rcpc
 
 [PcdsFixedAtBuild]
   # Platform Pei HOBs

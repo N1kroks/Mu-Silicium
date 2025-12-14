@@ -82,8 +82,8 @@ PlatformUpdateAcpiTables ()
   UINT32 PLST = PlatformInfo.subtype;
 
   if (!EFI_ERROR (LocateMemoryMapAreaByName ("MPSS_EFS", &MPSSEFSRegion))) {
-    RMTB = MPSSEFSRegion.Address;
-    RMTX = MPSSEFSRegion.Length;
+    RMTB = (UINT32)MPSSEFSRegion.Address;
+    RMTX = (UINT32)MPSSEFSRegion.Length;
 
     // Configure MPSS Permissions
     RFSLocateAndProtectSharedArea ();

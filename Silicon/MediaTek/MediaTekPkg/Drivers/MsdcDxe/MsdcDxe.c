@@ -292,16 +292,16 @@ MsdcSetMclk (
     // Ignore divisor
     Div = 0;
     Mode = MSDC_MCLK_NO_DIV;
-    Private->HostData.Sclk = SourceClock;
+    Private->HostData.Sclk = (UINT32)SourceClock;
   } else {
     // Divisor mode
     Mode = MSDC_MCLK_DIV;
     if (Hz >= (SourceClock >> 1)) {
       Div = 0; /* Will divide source clock 1/2 */
-      Private->HostData.Sclk = SourceClock >> 1;
+      Private->HostData.Sclk = (UINT32)(SourceClock >> 1);
     } else {
-      Div = (SourceClock + ((Hz << 2) - 1)) / (Hz << 2);
-      Private->HostData.Sclk = (SourceClock >> 2) / Div;
+      Div = (UINT32)((SourceClock + ((Hz << 2) - 1)) / (Hz << 2));
+      Private->HostData.Sclk = (UINT32)((SourceClock >> 2) / Div);
     }
   }
 
@@ -1378,7 +1378,7 @@ InitMsdc (
   EFI_MEMORY_REGION_DESCRIPTOR_EX Region;
   CHAR8 MsdcName[11];
 
-  for (UINTN i = 0; i < PlatformInfo.NumberOfHosts; i++) {
+  for (UINT8 i = 0; i < PlatformInfo.NumberOfHosts; i++) {
     Private = AllocateCopyPool (sizeof(MSDC_PRIVATE_DATA), &gMSDCPrivateDataTemplate);
     if (Private == NULL) {
       return EFI_OUT_OF_RESOURCES;

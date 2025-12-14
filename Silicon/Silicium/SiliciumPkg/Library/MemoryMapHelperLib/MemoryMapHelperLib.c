@@ -1,5 +1,6 @@
 #include <Library/MemoryMapHelperLib.h>
 #include <Library/MemoryMapLib.h>
+#include <Library/BaseMemoryLib.h>
 
 EFI_STATUS
 EFIAPI
@@ -13,7 +14,7 @@ LocateMemoryMapAreaByName (
   while (MemoryDescriptorEx->Length != 0) {
     // Compare Memory Region Names
     if (AsciiStriCmp (MemoryMapAreaName, MemoryDescriptorEx->Name) == 0) {
-      *MemoryDescriptor = *MemoryDescriptorEx;
+      CopyMem(MemoryDescriptor, MemoryDescriptorEx, sizeof(EFI_MEMORY_REGION_DESCRIPTOR_EX));
       return EFI_SUCCESS;
     }
 
@@ -36,7 +37,7 @@ LocateMemoryMapAreaByAddress (
   while (MemoryDescriptorEx->Length != 0) {
     // Compare Memory Region Addresses
     if (MemoryDescriptorEx->Address == MemoryMapAreaAddress) {
-      *MemoryDescriptor = *MemoryDescriptorEx;
+      CopyMem(MemoryDescriptor, MemoryDescriptorEx, sizeof(EFI_MEMORY_REGION_DESCRIPTOR_EX));
       return EFI_SUCCESS;
     }
 

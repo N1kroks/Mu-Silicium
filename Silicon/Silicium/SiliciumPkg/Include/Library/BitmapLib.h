@@ -28,7 +28,7 @@
 
 #define BIT_SHIFT(x, bit)           (((x) >> (bit)) & 1)
 #define BITS_SHIFT(x, high, low)    (((x) >> (low)) & ((1 << ((high) - (low) + 1)) - 1))
-#define BIT_SET(x, bit)             (((x) & (1UL << (bit))) ? 1 : 0)
+#define BIT_SET(x, bit)             (((x) & (1ULL << (bit))) ? 1 : 0)
 
 #define BITMAP_BITS_PER_WORD        (sizeof (UINTN) * 8)
 #define BITMAP_NUM_WORDS(x)         (((x) + BITMAP_BITS_PER_WORD - 1) / BITMAP_BITS_PER_WORD)
@@ -46,7 +46,7 @@ BitmapSet (
   UINTN *bitmap,
   INTN   bit)
 {
-  UINTN mask = 1UL << BITMAP_BIT_IN_INT (bit);
+  UINTN mask = 1ULL << BITMAP_BIT_IN_INT (bit);
 
   return AtomicOr (&((INTN *)bitmap)[BITMAP_INT (bit)], mask) & mask ? 1 : 0;
 }
@@ -58,7 +58,7 @@ BitmapClear (
   UINTN *bitmap,
   INTN   bit)
 {
-  UINTN mask = 1UL << BITMAP_BIT_IN_INT (bit);
+  UINTN mask = 1ULL << BITMAP_BIT_IN_INT (bit);
 
   return AtomicAnd (&((INTN *)bitmap)[BITMAP_INT (bit)], ~mask) & mask ? 1 : 0;
 }

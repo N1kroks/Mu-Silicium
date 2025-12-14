@@ -1,0 +1,10 @@
+#include <AsmMacroLib.h>
+
+    AREA |.text|, ALIGN=3, CODE, READONLY
+
+    EXPORT PlaformAssemblyInit
+
+PlaformAssemblyInit PROC
+    ret
+    ENDP
+    END

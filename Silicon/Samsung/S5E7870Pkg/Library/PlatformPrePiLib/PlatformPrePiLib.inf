@@ -10,7 +10,8 @@
   PlatformPrePiLib.c
 
 [Sources.AArch64]
-  AArch64/PlatformPrePiLib.S
+  AArch64/PlatformPrePiLib.S|GCC
+  AArch64/PlatformPrePiLib.masm|MSFT
 
 [Packages]
   ArmPkg/ArmPkg.dec

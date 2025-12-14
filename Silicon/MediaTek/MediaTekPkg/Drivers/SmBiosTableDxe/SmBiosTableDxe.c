@@ -287,7 +287,7 @@ MemDevInfoUpdateSmbiosType17 (IN UINT64 SystemMemorySize)
   mMemDevInfoType17.MemoryType                 = FixedPcdGet32 (PcdSmbiosMemoryType);
 
   // Update Memory Size
-  mMemDevInfoType17.Size = SystemMemorySize / 0x100000;
+  mMemDevInfoType17.Size = (UINT16)(SystemMemorySize / 0x100000);
 
   // Register SmBios Structure
   LogSmbiosData ((EFI_SMBIOS_TABLE_HEADER *)&mMemDevInfoType17, mMemDevInfoType17Strings, NULL);
@@ -298,7 +298,7 @@ MemArrMapInfoUpdateSmbiosType19 (IN UINT64 SystemMemorySize)
 {
   // Update Memory Start & End Address
   mMemArrMapInfoType19.StartingAddress = FixedPcdGet64 (PcdSystemMemoryBase) / 1024;
-  mMemArrMapInfoType19.EndingAddress   = (SystemMemorySize + FixedPcdGet64 (PcdSystemMemoryBase) - 1) / 1024;
+  mMemArrMapInfoType19.EndingAddress   = (UINT32)((SystemMemorySize + FixedPcdGet64 (PcdSystemMemoryBase) - 1) / 1024);
 
   // Register SmBios Structure
   LogSmbiosData ((EFI_SMBIOS_TABLE_HEADER *)&mMemArrMapInfoType19, mMemArrMapInfoType19Strings, NULL);
