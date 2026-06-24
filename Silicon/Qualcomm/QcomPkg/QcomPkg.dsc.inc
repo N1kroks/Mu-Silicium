@@ -64,3 +64,4 @@
   # Custom Apps
   #
   QcomPkg/Applications/MassStorage/MassStorage.inf
+  QcomPkg/Applications/AndroidBoot/AndroidBoot.inf
