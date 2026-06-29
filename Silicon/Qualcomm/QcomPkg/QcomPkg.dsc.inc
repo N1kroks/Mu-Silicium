@@ -46,6 +46,7 @@
   #
   ConfigurationMapHelperLib|QcomPkg/Library/ConfigurationMapHelperLib/ConfigurationMapHelperLib.inf
   ArmSmmuDetachLib|QcomPkg/Library/ArmSmmuDetachLib/ArmSmmuDetachLib.inf
+  SlotLib|QcomPkg/Library/SlotLib/SlotLib.inf
 
 [Components]
   #

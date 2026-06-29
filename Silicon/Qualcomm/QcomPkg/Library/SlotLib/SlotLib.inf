@@ -1,0 +1,24 @@
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = SlotLib
+  FILE_GUID                      = 03E8BF8F-86A1-4EBA-B02A-2A30B68F3425
+  MODULE_TYPE                    = DXE_DRIVER
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = SlotLib|DXE_DRIVER UEFI_APPLICATION
+
+[Sources]
+  Slot.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  SiliciumPkg/SiliciumPkg.dec
+  QcomPkg/QcomPkg.dec
+
+[LibraryClasses]
+  DebugLib
+  UefiBootServicesTableLib
+  MemoryAllocationLib
+  BaseLib
+
+[Protocols]
+  gEfiPartitionInfoProtocolGuid
