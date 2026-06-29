@@ -153,7 +153,7 @@ class PlatformBuilder (UefiBuilder, BuildSettingsManager):
         self.env.SetValue ("SHUTDOWN_AFTER_RUN", "FALSE", "Default to false")
         self.env.SetValue ("BLD_*_BUILDID_STRING", "Unknown", "Default")
         self.env.SetValue ("BUILDREPORTING", "TRUE", "Enabling build report")
-        self.env.SetValue ("BUILDREPORT_TYPES", "PCD DEPEX FLASH BUILD_FLAGS LIBRARY FIXED_ADDRESS HASH", "Setting build report types")
+        self.env.SetValue ("BUILDREPORT_TYPES", "PCD DEPEX FLASH BUILD_FLAGS LIBRARY FIXED_ADDRESS HASH COMPILE_INFO", "Setting build report types")
         self.env.SetValue ("BLD_*_MEMORY_PROTECTION", "TRUE", "Default")
         self.env.SetValue ("BLD_*_SHIP_MODE", "FALSE", "Default")
         self.env.SetValue ("BLD_*_DEVICE_MODEL", self.env.GetValue("DEVICE_MODEL"), "Default")

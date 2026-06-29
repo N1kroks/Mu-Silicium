@@ -1,0 +1,44 @@
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = AndroidBoot
+  FILE_GUID                      = CECA15EA-CCD9-4790-8B78-DB149B8E4532
+  MODULE_TYPE                    = UEFI_APPLICATION
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = InitAndroidBoot
+
+[Sources]
+  AndroidBoot.c
+  BlockIo.c
+  BootImage.c
+  BootLinux.c
+  tinf/adler32.c
+  tinf/crc32.c
+  tinf/tinfgzip.c
+  tinf/tinflate.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  SiliciumPkg/SiliciumPkg.dec
+  QcomPkg/QcomPkg.dec
+
+[LibraryClasses]
+  UefiBootServicesTableLib
+  UefiApplicationEntryPoint
+  UefiRuntimeServicesTableLib
+  MemoryAllocationLib
+  BaseMemoryLib
+  FdtLib
+  UefiLib
+  ArmLib
+  CacheMaintenanceLib
+  UefiBootManagerLib
+  MemoryMapHelperLib
+  SlotLib
+
+[Guids]
+  gEfiFileInfoGuid
+
+[Protocols]
+  gEfiBlockIoProtocolGuid
+  gEfiPartitionInfoProtocolGuid

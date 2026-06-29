@@ -21,3 +21,4 @@
 
 [FixedPcd]
   gQcomPkgTokenSpaceGuid.PcdMassStorageFile
+  gQcomPkgTokenSpaceGuid.PcdAndroidBootFile

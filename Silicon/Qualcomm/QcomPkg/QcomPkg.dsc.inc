@@ -47,6 +47,7 @@
   #
   ConfigurationMapHelperLib|QcomPkg/Library/ConfigurationMapHelperLib/ConfigurationMapHelperLib.inf
   ArmSmmuDetachLib|QcomPkg/Library/ArmSmmuDetachLib/ArmSmmuDetachLib.inf
+  SlotLib|QcomPkg/Library/SlotLib/SlotLib.inf
 
 [Components]
   #
@@ -58,3 +59,4 @@
   # Custom Apps
   #
   QcomPkg/Applications/MassStorage/MassStorage.inf
+  QcomPkg/Applications/AndroidBoot/AndroidBoot.inf
