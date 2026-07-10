@@ -24,6 +24,3 @@
   gMediaTekGpioProtocolGuid
   gMediaTekClockProtocolGuid
   gMediaTekPmicProtocolGuid
-
-[FixedPcd]
-  gMediaTekPkgTokenSpaceGuid.PcdStorageIsEMMC

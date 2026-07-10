@@ -15,14 +15,17 @@ MSDC_PLATFORM_INFO gPlatformInfo = {
   .AsyncFifo = TRUE,
   .BusyCheck = TRUE,
   .StopClkFix = TRUE,
-  .EnhanceRx = TRUE
+  .StopDlySel = 3,
+  .EnhanceRx = TRUE,
+  .Support64g = TRUE,
+  .DataTune = TRUE
 };
 
 STATIC MTK_GPIO_PROTOCOL *mGpio = NULL;
 STATIC MTK_CLOCK_PROTOCOL *mClock = NULL;
 STATIC MTK_PMIC_PROTOCOL *mPmic = NULL;
 
-VOID
+EFI_STATUS
 GetSourceClockRate (
   UINT32 Index,
   UINTN *Hz)
@@ -33,19 +36,21 @@ GetSourceClockRate (
   // Get Clock Id
   Status = mClock->GetId(Index == 0 ? "TOP_MSDC50_0" : "TOP_MSDC30_1", &ClockId);
   if (EFI_ERROR (Status)) {
-    DEBUG ((DEBUG_ERROR, "Failed to Get Clock Id! Status = %r\n", Status));
-    ASSERT_EFI_ERROR (Status);
+    DEBUG ((DEBUG_ERROR, "Failed to Get %a Clock Id! Status = %r\n", Index == 0 ? "TOP_MSDC50_0" : "TOP_MSDC30_1", Status));
+    return Status;
   }
 
   // Get Clock Frequency
   Status = mClock->GetFrequency(ClockId, Hz);
   if (EFI_ERROR (Status)) {
-    DEBUG ((DEBUG_ERROR, "Failed to Get Clock Frequency! Status = %r\n", Status));
-    ASSERT_EFI_ERROR (Status);
+    DEBUG ((DEBUG_ERROR, "Failed to Get %a Clock Frequency! Status = %r\n", Index == 0 ? "TOP_MSDC50_0" : "TOP_MSDC30_1", Status));
+    return Status;
   }
+
+  return Status;
 }
 
-VOID
+EFI_STATUS
 SourceClockControl (
   UINT32 Index,
   BOOLEAN Enable)
@@ -56,19 +61,21 @@ SourceClockControl (
   // Get Clock Id
   Status = mClock->GetId(Index == 0 ? "IFRAO_MSDC0_SRC" : "IFRAO_MSDC1_SRC", &ClockId);
   if (EFI_ERROR (Status)) {
-    DEBUG ((DEBUG_ERROR, "Failed to Get Clock Id! Status = %r\n", Status));
-    ASSERT_EFI_ERROR (Status);
+    DEBUG ((DEBUG_ERROR, "Failed to Get IFRAO_MSDC%d_SRC Clock Id! Status = %r\n", Index, Status));
+    return Status;
   }
 
   // Enable Clock
   Status = mClock->SetEnable(ClockId, Enable);
   if (EFI_ERROR (Status)) {
-    DEBUG ((DEBUG_ERROR, "Failed to Enable Clock! Status = %r\n", Status));
-    ASSERT_EFI_ERROR (Status);
+    DEBUG ((DEBUG_ERROR, "Failed to Enable IFRAO_MSDC%d_SRC Clock! Status = %r\n", Index, Status));
+    return Status;
   }
+
+  return Status;
 }
 
-VOID
+EFI_STATUS
 ClockControl (
   UINT32 Index,
   BOOLEAN Enable)
@@ -79,88 +86,116 @@ ClockControl (
   // Get Clock Id
   Status = mClock->GetId(Index == 0 ? "TOP_MSDC50_0" : "TOP_MSDC30_1", &ClockId);
   if (EFI_ERROR (Status)) {
-    DEBUG ((DEBUG_ERROR, "Failed to Get Clock Id! Status = %r\n", Status));
-    ASSERT_EFI_ERROR (Status);
+    DEBUG ((DEBUG_ERROR, "Failed to Get %a Clock Id! Status = %r\n", Index == 0 ? "TOP_MSDC50_0" : "TOP_MSDC30_1", Status));
+    return Status;
   }
 
   // Enable Clock
   Status = mClock->SetEnable(ClockId, Enable);
   if (EFI_ERROR (Status)) {
-    DEBUG ((DEBUG_ERROR, "Failed to Enable Clock! Status = %r\n", Status));
-    ASSERT_EFI_ERROR (Status);
+    DEBUG ((DEBUG_ERROR, "Failed to Enable %a Clock! Status = %r\n", Index == 0 ? "TOP_MSDC50_0" : "TOP_MSDC30_1", Status));
+    return Status;
   }
 
   // Get Clock Id
   Status = mClock->GetId(Index == 0 ? "IFRAO_MSDC0" : "IFRAO_MSDC1", &ClockId);
   if (EFI_ERROR (Status)) {
-    DEBUG ((DEBUG_ERROR, "Failed to Get Clock Id! Status = %r\n", Status));
-    ASSERT_EFI_ERROR (Status);
+    DEBUG ((DEBUG_ERROR, "Failed to Get IFRAO_MSDC%d Clock Id! Status = %r\n", Index, Status));
+    return Status;
   }
 
   // Enable Clock
   Status = mClock->SetEnable(ClockId, Enable);
   if (EFI_ERROR (Status)) {
-    DEBUG ((DEBUG_ERROR, "Failed to Enable Clock! Status = %r\n", Status));
-    ASSERT_EFI_ERROR (Status);
+    DEBUG ((DEBUG_ERROR, "Failed to Enable IFRAO_MSDC%d Clock! Status = %r\n", Index, Status));
+    return Status;
   }
+
+  return Status;
 }
 
-VOID
+EFI_STATUS
 PowerControl (
   UINT32 Index,
-  BOOLEAN Enable)
+  BOOLEAN Enable,
+  UINT32 VoltageLevel)
 {
   EFI_STATUS Status;
 
-  if (Index == 0 && FixedPcdGetBool(PcdStorageIsEMMC)) {
+  if (Index == 0) {
     // Enable VEMC LDO
     Status = mPmic->RegulatorSetEnable("ldo_vemc", Enable);
     if (EFI_ERROR (Status)) {
       DEBUG ((DEBUG_ERROR, "Failed to Enable LDO VEMC! Status = %r\n", Status));
-      ASSERT_EFI_ERROR (Status);
+      return Status;
     }
-  } else {
+  } else if (Index == 1) {
+    // Set VMC LDO Voltage
+    Status = mPmic->RegulatorSetVoltage("ldo_vmc", VoltageLevel);
+    if (EFI_ERROR (Status)) {
+      DEBUG ((DEBUG_ERROR, "Failed to Set VMC LDO Voltage! Status = %r\n", Status));
+      return Status;
+    }
+
     // Enable VMCH LDO
     Status = mPmic->RegulatorSetEnable("ldo_vmch", Enable);
     if (EFI_ERROR (Status)) {
       DEBUG ((DEBUG_ERROR, "Failed to Enable LDO VMCH! Status = %r\n", Status));
-      ASSERT_EFI_ERROR (Status);
+      return Status;
     }
 
     // Enable VMC LDO
     Status = mPmic->RegulatorSetEnable("ldo_vmc", Enable);
     if (EFI_ERROR (Status)) {
       DEBUG ((DEBUG_ERROR, "Failed to Enable LDO VMC! Status = %r\n", Status));
-      ASSERT_EFI_ERROR (Status);
+      return Status;
     }
   }
+
+  return Status;
 }
 
 VOID
-InitGpio (
+ConfigureGpio (
   UINT32 Index)
 {
-  if (Index == 0 && FixedPcdGetBool(PcdStorageIsEMMC)) {
+  if (Index == 0) {
     // Setup EMMC GPIO
-    mGpio->SetMode (58, 1); // DAT0
-    mGpio->SetMode (59, 1); // DAT1
-    mGpio->SetMode (60, 1); // DAT2
-    mGpio->SetMode (61, 1); // DAT3
-    mGpio->SetMode (62, 1); // DAT4
-    mGpio->SetMode (63, 1); // DAT5
-    mGpio->SetMode (64, 1); // DAT6
-    mGpio->SetMode (65, 1); // DAT7
-    mGpio->SetMode (56, 1); // CMD
-    mGpio->SetMode (55, 1); // CLK
-  }
-  else {
+    // DAT0-DAT7: GPIO58-65
+    // DS: GPIO57
+    // CMD: GPIO56
+    // CLK: GPIO55
+    for (UINTN i = 55; i <= 65; i++) {
+      mGpio->SetMode (i, 1);
+      mGpio->SetDriveStrength (i, 3);
+      if (i == 55 || i == 57) {
+        mGpio->SetBias (i, BiasPullDown, ResistanceR1R0_10);
+        if (i == 55) {
+          mGpio->SetDir (i, DirOut);
+        } else {
+          mGpio->SetDir (i, DirIn);
+        }
+      } else {
+        mGpio->SetBias (i, BiasPullUp, ResistanceR1R0_01);
+        mGpio->SetDir (i, DirIn);
+      }
+    }
+  } else {
     // Setup SDCard GPIO
-    mGpio->SetMode (73, 1); // DAT0
-    mGpio->SetMode (74, 1); // DAT1
-    mGpio->SetMode (75, 1); // DAT2
-    mGpio->SetMode (76, 1); // DAT3
-    mGpio->SetMode (72, 1); // CMD
-    mGpio->SetMode (71, 1); // CLK
+    // DAT0-DAT3: GPIO73-76
+    // CMD: GPIO72
+    // CLK: GPIO71
+    for (UINTN i = 71; i <= 76; i++) {
+      mGpio->SetMode (i, 1);
+      mGpio->SetDriveStrength (i, 3);
+      if (i == 71) {
+        mGpio->SetBias (i, BiasPullDown, ResistanceR1R0_10);
+        mGpio->SetDir (i, DirOut);
+      } else {
+        mGpio->SetBias (i, BiasPullUp, ResistanceR1R0_01);
+        mGpio->SetDir (i, DirIn);
+      }
+    }
   }
 }
 
@@ -195,13 +230,6 @@ MsdcLibConstructor (VOID)
   Status = mPmic->RegulatorSetVoltage("ldo_vmch", 3300000);
   if (EFI_ERROR (Status)) {
     DEBUG ((DEBUG_ERROR, "Failed to Set VMCH LDO Voltage! Status = %r\n", Status));
-    ASSERT_EFI_ERROR (Status);
-  }
-
-  // Set VMC LDO Voltage
-  Status = mPmic->RegulatorSetVoltage("ldo_vmc", 3300000);
-  if (EFI_ERROR (Status)) {
-    DEBUG ((DEBUG_ERROR, "Failed to Set VMC LDO Voltage! Status = %r\n", Status));
     ASSERT_EFI_ERROR (Status);
   }
 

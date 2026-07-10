@@ -8,7 +8,9 @@
 
 [Sources]
   MsdcDxe.c
-  MsdcUtils.c
+  MsdcIo.c
+  MsdcHw.c
+  MsdcCard.c
 
 [Packages]
   ArmPkg/ArmPkg.dec
@@ -29,6 +31,9 @@
 
 [Protocols]
   gEfiSdMmcPassThruProtocolGuid
+
+[FixedPcd]
+  gMediaTekPkgTokenSpaceGuid.PcdStorageIsEMMC
 
 [Depex]
   TRUE

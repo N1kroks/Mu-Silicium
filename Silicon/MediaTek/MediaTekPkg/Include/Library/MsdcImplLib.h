@@ -2,42 +2,46 @@
 #define _MSDC_IMPL_LIB_H_
 
 typedef struct {
-  UINT8 NumberOfHosts;
+  UINT8   NumberOfHosts;
   BOOLEAN UseTop;
-  UINT32 MsdcPadTuneReg;
-  UINT32 TuningStep[2];
+  UINT32  MsdcPadTuneReg;
+  UINT32  TuningStep[2];
   BOOLEAN AsyncFifo;
   BOOLEAN BusyCheck;
   BOOLEAN StopClkFix;
+  UINT32  StopDlySel;
   BOOLEAN EnhanceRx;
+  BOOLEAN Support64g;
+  BOOLEAN DataTune;
 } MSDC_PLATFORM_INFO;
 
-VOID
+EFI_STATUS
 GetSourceClockRate (
   UINT32 Index,
   UINTN *Hz
   );
 
-VOID
+EFI_STATUS
 SourceClockControl (
   UINT32 Index,
   BOOLEAN Enable
   );
 
-VOID
+EFI_STATUS
 ClockControl (
   UINT32 Index,
   BOOLEAN Enable
   );
 
-VOID
+EFI_STATUS
 PowerControl (
   UINT32 Index,
-  BOOLEAN Enable
+  BOOLEAN Enable,
+  UINT32 VoltageLevel
   );
 
 VOID
-InitGpio (
+ConfigureGpio (
   UINT32 Index
   );
 
