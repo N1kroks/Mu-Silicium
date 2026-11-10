@@ -101,6 +101,8 @@ BootLinux (
     return EFI_OUT_OF_RESOURCES;
   }
 
+  SetMem (NewFdt, NewFdtSize, 0);
+
   Err = FdtOpenInto (Fdt, NewFdt, NewFdtSize);
   if (Err != 0) {
     Print (L"Failed to open FDT! Err = %d\n", Err);

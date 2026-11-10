@@ -3,6 +3,7 @@
 
 #include <Library/UefiBootServicesTableLib.h>
 #include <Library/UefiLib.h>
+#include <Library/BaseMemoryLib.h>
 
 typedef VOID (*LINUX_KERNEL) (
   UINT64 X0,

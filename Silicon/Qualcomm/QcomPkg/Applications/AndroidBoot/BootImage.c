@@ -1,5 +1,4 @@
 #include <Library/UefiRuntimeServicesTableLib.h>
-#include <Library/BaseMemoryLib.h>
 #include <Library/UefiLib.h>
 #include <Library/MemoryMapHelperLib.h>
 #include <Library/MemoryAllocationLib.h>
@@ -482,6 +481,9 @@ LoadBoot (
       return EFI_OUT_OF_RESOURCES;
     }
   }
+
+  SetMem (Kernel, KernelRegionSize, 0);
+
   Kernel += KernelTextOffset;
 
   if (AlignedRamdiskSize != 0) {
@@ -492,6 +494,8 @@ LoadBoot (
       return EFI_OUT_OF_RESOURCES;
     }
   }
+
+  SetMem (Ramdisk, AlignedRamdiskSize, 0);
 
   if (GzipKernel) {
     UINT32 DestLen = AlignedKernelSize;
