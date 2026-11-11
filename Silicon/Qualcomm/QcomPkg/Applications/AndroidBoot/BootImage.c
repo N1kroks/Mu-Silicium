@@ -351,6 +351,20 @@ IsGzip (
   return Buffer[0] == 0x1f && Buffer[1] == 0x8b && Buffer[2] == 0x08;
 }
 
+STATIC
+UINT32
+ReadUncompressedGzipLength (
+  IN UINT8 *Buffer,
+  IN UINTN  Length
+  )
+{
+  if (Buffer == NULL || Length < 18) {
+    return 0;
+  }
+
+  return *(UINT32 *)(Buffer + Length - 4);
+}
+
 EFI_STATUS
 LoadBoot (
   IN VOID  *Boot,
@@ -374,6 +388,7 @@ LoadBoot (
   UINT32 VendorDtbOffset;
   UINT32 VendorBootConfigSize;
   UINT32 VendorBootConfigOffset;
+  UINT32 PageSize;
   BOOLEAN GzipKernel;
   EFI_MEMORY_REGION_DESCRIPTOR KernelRegion;
   UINT32 KernelTextOffset = 0x80000;
@@ -402,17 +417,18 @@ LoadBoot (
       return Status;
     }
 
+    PageSize = VendorHeader->PageSize;
     KernelSize = Header->KernelSize;
-    AlignedKernelSize = ALIGN_VALUE (KernelSize, VendorHeader->PageSize);
-    KernelOffset = ALIGN_VALUE (Header->HeaderSize, VendorHeader->PageSize);
+    AlignedKernelSize = ALIGN_VALUE (KernelSize, PageSize);
+    KernelOffset = ALIGN_VALUE (Header->HeaderSize, PageSize);
 
     RamdiskSize = Header->RamdiskSize;
     RamdiskOffset = KernelOffset + AlignedKernelSize;
 
     VendorRamDiskSize = VendorHeader->VendorRamdiskSize;
-    VendorRamdiskOffset = ALIGN_VALUE (VendorHeader->HeaderSize, VendorHeader->PageSize);
+    VendorRamdiskOffset = ALIGN_VALUE (VendorHeader->HeaderSize, PageSize);
 
-    AlignedRamdiskSize = ALIGN_VALUE (RamdiskSize + VendorRamDiskSize, VendorHeader->PageSize);
+    AlignedRamdiskSize = ALIGN_VALUE (RamdiskSize + VendorRamDiskSize, PageSize);
 
     if (!IsRangeValid (VendorRamdiskOffset, VendorRamDiskSize, BootSize)) {
       Print (L"Vendor ramdisk is out of range\n");
@@ -420,7 +436,7 @@ LoadBoot (
     }
 
     VendorDtbSize = VendorHeader->DtbSize;
-    VendorDtbOffset = VendorRamdiskOffset + ALIGN_VALUE (VendorRamDiskSize, VendorHeader->PageSize);
+    VendorDtbOffset = VendorRamdiskOffset + ALIGN_VALUE (VendorRamDiskSize, PageSize);
 
     if (!IsRangeValid (VendorDtbOffset, VendorDtbSize, BootSize)) {
       Print (L"Vendor DTB is out of range\n");
@@ -428,10 +444,10 @@ LoadBoot (
     }
 
     if (HeaderVersion == 4) {
-      AlignedRamdiskSize = ALIGN_VALUE (AlignedRamdiskSize + VendorHeader->BootConfigSize, VendorHeader->PageSize);
+      AlignedRamdiskSize = ALIGN_VALUE (AlignedRamdiskSize + VendorHeader->BootConfigSize, PageSize);
 
       VendorBootConfigSize = VendorHeader->BootConfigSize;
-      VendorBootConfigOffset = VendorDtbOffset + ALIGN_VALUE (VendorDtbSize, VendorHeader->PageSize);
+      VendorBootConfigOffset = VendorDtbOffset + ALIGN_VALUE (VendorDtbSize, PageSize);
 
       if (!IsRangeValid (VendorBootConfigOffset, VendorBootConfigSize, BootSize)) {
         Print (L"Vendor boot config is out of range\n");
@@ -441,12 +457,13 @@ LoadBoot (
   } else {
     BOOT_IMAGE_HEADER_V0 *Header = Boot;
 
+    PageSize = Header->PageSize;
     KernelSize = Header->KernelSize;
-    AlignedKernelSize = ALIGN_VALUE (KernelSize, Header->PageSize);
-    KernelOffset = ALIGN_VALUE (sizeof (BOOT_IMAGE_HEADER_V0), Header->PageSize);
+    AlignedKernelSize = ALIGN_VALUE (KernelSize, PageSize);
+    KernelOffset = ALIGN_VALUE (sizeof (BOOT_IMAGE_HEADER_V0), PageSize);
 
     RamdiskSize = Header->RamdiskSize;
-    AlignedRamdiskSize = ALIGN_VALUE (RamdiskSize, Header->PageSize);
+    AlignedRamdiskSize = ALIGN_VALUE (RamdiskSize, PageSize);
     RamdiskOffset = KernelOffset + AlignedKernelSize;
   }
 
@@ -467,9 +484,18 @@ LoadBoot (
     if (KernelHeader->ImageSize != 0) {
       KernelTextOffset = KernelHeader->TextOffset;
     }
+  } else {
+    for (UINT32 i = 0; i < KernelSize; i += 4) {
+      if (*(UINT32 *)(Boot + KernelOffset + i) == DTB_MAGIC) {
+        KernelSize = i - 4;
+        break;
+      }
+    }
+
+    AlignedKernelSize = ALIGN_VALUE (ReadUncompressedGzipLength (Boot + KernelOffset, KernelSize), PageSize);
   }
 
-  KernelRegionSize = KernelSize + KernelTextOffset;
+  KernelRegionSize = AlignedKernelSize + KernelTextOffset;
   Status = LocateMemoryRegionByName ("Kernel", &KernelRegion);
   if (!EFI_ERROR (Status) && KernelRegion.Length >= KernelRegionSize) {
     Kernel = (VOID *)(UINTN)KernelRegion.Address;
@@ -499,8 +525,9 @@ LoadBoot (
 
   if (GzipKernel) {
     UINT32 DestLen = AlignedKernelSize;
-    if (tinf_gzip_uncompress (Kernel, &DestLen, Boot + KernelOffset, KernelSize) != TINF_OK) {
-      Print (L"Failed to unpack gzip kernel\n");
+    INT32 Err = tinf_gzip_uncompress (Kernel, &DestLen, Boot + KernelOffset, KernelSize);
+    if (Err != TINF_OK) {
+      Print (L"Failed to unpack gzip kernel! Err = %d\n", Err);
       return EFI_COMPROMISED_DATA;
     }
   } else {
